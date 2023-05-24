@@ -32,5 +32,7 @@ AABCharacterBase::AABCharacterBase()
 
     static ConstructorHelpers::FClassFinder<UAnimInstance> animInstanceRef = TEXT("/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C");
     if (animInstanceRef.Class) GetMesh()->SetAnimInstanceClass(animInstanceRef.Class);
+
+    bUseControllerRotationYaw = true;
 }
 
