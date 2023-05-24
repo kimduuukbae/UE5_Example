@@ -44,5 +44,6 @@ protected:
 	TObjectPtr<class UInputAction> lookAction;
 
 	void Move(const FInputActionValue& Value);
-	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void Custom_Jump(const FInputActionValue& value);
 };
