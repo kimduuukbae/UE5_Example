@@ -4,6 +4,7 @@
 #include "Character/ABCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ABCharacterControlData.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -33,6 +34,20 @@ AABCharacterBase::AABCharacterBase()
     static ConstructorHelpers::FClassFinder<UAnimInstance> animInstanceRef = TEXT("/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C");
     if (animInstanceRef.Class) GetMesh()->SetAnimInstanceClass(animInstanceRef.Class);
 
-    bUseControllerRotationYaw = true;
+    static ConstructorHelpers::FObjectFinder<UABCharacterControlData> shoulderDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Shoulder.ABC_Shoulder'");
+    if (shoulderDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Shoulder, shoulderDataRef.Object);
+
+    static ConstructorHelpers::FObjectFinder<UABCharacterControlData> quaterDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Quater.ABC_Quater'");
+    if (quaterDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Quater, quaterDataRef.Object);
+}
+
+void AABCharacterBase::SetCharacterControlData(const UABCharacterControlData* CharacterControlData)
+{
+    // Pawn
+    bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
+
+    GetCharacterMovement()->bOrientRotationToMovement = CharacterControlData->bOrientRotationToMovement;
+    GetCharacterMovement()->bUseControllerDesiredRotation = CharacterControlData->bUseControllerDesiredRotation;
+    GetCharacterMovement()->RotationRate = CharacterControlData->RotationRate;
 }
 
