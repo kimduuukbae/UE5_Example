@@ -28,10 +28,10 @@ AABCharacterBase::AABCharacterBase()
     GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
     GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
 
-    static ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'");
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'");
     if (characterMeshRef.Object) GetMesh()->SetSkeletalMesh(characterMeshRef.Object);
 
-    static ConstructorHelpers::FClassFinder<UAnimInstance> animInstanceRef = TEXT("/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C");
+    static ConstructorHelpers::FClassFinder<UAnimInstance> animInstanceRef = TEXT("/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C");
     if (animInstanceRef.Class) GetMesh()->SetAnimInstanceClass(animInstanceRef.Class);
 
     static ConstructorHelpers::FObjectFinder<UABCharacterControlData> shoulderDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Shoulder.ABC_Shoulder'");
