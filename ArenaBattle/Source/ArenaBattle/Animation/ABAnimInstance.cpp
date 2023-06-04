@@ -31,7 +31,5 @@ void UABAnimInstance::NativeUpdateAnimation(float dt)
 		bIsIdle = GroundSpeed < MovingThreshould;
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
-
-		UE_LOG(LogTemp, Warning, TEXT("IsJumping : %d"), bIsJumping);
 	}
 }
