@@ -12,7 +12,7 @@
 UCLASS()
 class ARENABATTLE_API UABAnimInstance : public UAnimInstance
 {
-	// ACharacter가 초기화 될 때 AnimInstance 클래스의 인스턴스를 생성한다. 
+	// 이 UABAnimInstance는 AnimationBlueprint의 class settings에서 AnimInstance를 셋하고, 게임 내에서 Character가 만들어질 때 만들어진다.
 	GENERATED_BODY()
 	
 public:
