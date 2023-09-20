@@ -6,7 +6,7 @@
 
 AABGameMode::AABGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> defaultPawn = TEXT("/Script/ArenaBattle.ABCharacterPlayer");
+	static ConstructorHelpers::FClassFinder<APawn> defaultPawn = TEXT("/Script/Engine.Blueprint'/Game/ArenaBattle/Blueprint/BP_AB_Character.BP_AB_Character_C'");
 
 	if (defaultPawn.Class)
 		DefaultPawnClass = defaultPawn.Class;

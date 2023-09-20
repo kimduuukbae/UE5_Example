@@ -36,6 +36,9 @@ AABCharacterPlayer::AABCharacterPlayer()
 	static ConstructorHelpers::FObjectFinder<UInputAction> QuaterMoveRef = TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/IA_Player_QuaterMove.IA_Player_QuaterMove'");
 	if (QuaterMoveRef.Object) QuaterMoveAction = QuaterMoveRef.Object;
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> AttackRef = TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/IA_Attack.IA_Attack'");
+	if (AttackRef.Object) AttackAction = AttackRef.Object;
+
 	CurrentCharacterControlType = ECharacterControlType::Quater;
 }
 
@@ -51,6 +54,7 @@ void AABCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	enhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	enhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::QuaterMove);
 	enhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ChangeCharacterControl);
+	enhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::CharacterAttack);
 }
 
 void AABCharacterPlayer::BeginPlay()
@@ -152,4 +156,11 @@ void AABCharacterPlayer::Custom_Jump(const FInputActionValue& value)
 		ACharacter::Jump();
 	else
 		ACharacter::StopJumping();
+}
+
+void AABCharacterPlayer::CharacterAttack(const FInputActionValue& value)
+{
+	bool v = value.Get<bool>();
+
+	ProcessComboCommand();
 }
