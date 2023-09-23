@@ -7,6 +7,8 @@
 #include "ABCharacterControlData.h"
 #include "Animation/AnimMontage.h"
 #include "ABComboActionData.h"
+#include "Physics/ABCollision.h"
+#include "Engine/DamageEvents.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -16,7 +18,7 @@ AABCharacterBase::AABCharacterBase()
     bUseControllerRotationYaw = false;
 
     GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
-    GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+    GetCapsuleComponent()->SetCollisionProfileName(CFROFILE_ABCAPSULE);
 
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
@@ -28,7 +30,7 @@ AABCharacterBase::AABCharacterBase()
 
     GetMesh()->SetRelativeLocationAndRotation(FVector{ 0.0f, 0.0f, -100.0f }, FRotator{ 0.0f, -90.0f, 0.0f });
     GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-    GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+    GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'");
     if (characterMeshRef.Object) GetMesh()->SetSkeletalMesh(characterMeshRef.Object);
@@ -41,6 +43,15 @@ AABCharacterBase::AABCharacterBase()
 
     static ConstructorHelpers::FObjectFinder<UABCharacterControlData> quaterDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Quater.ABC_Quater'");
     if (quaterDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Quater, quaterDataRef.Object);
+
+    static ConstructorHelpers::FObjectFinder<UAnimMontage> comboActionMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_ComboAttack.AM_ComboAttack'");
+    if (comboActionMontageRef.Object) ComboActionMontage = comboActionMontageRef.Object;
+
+    static ConstructorHelpers::FObjectFinder<UABComboActionData> comboActionDataRef = TEXT("/Script/ArenaBattle.ABComboActionData'/Game/ArenaBattle/CharacterAction/ABA_ComboAttack.ABA_ComboAttack'");
+    if (comboActionDataRef.Object) ComboActionData = comboActionDataRef.Object;
+
+    static ConstructorHelpers::FObjectFinder<UAnimMontage> deadMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_Dead.AM_Dead'");
+    if (deadMontageRef.Object) DeadMontage = deadMontageRef.Object;
 }
 
 void AABCharacterBase::SetCharacterControlData(const UABCharacterControlData* CharacterControlData)
@@ -132,5 +143,66 @@ void AABCharacterBase::ComboCheck()
         SetComboCheckTimer();
         HasNextComboCommand = false;
     }
+}
+
+void AABCharacterBase::AttackHitCheck()
+{
+    FHitResult OutHitResult;
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), true, this);
+
+    const float AttackRange = 40.0f;
+    const float AttackRadius = 50.0f;
+    const float AttackDamage = 30.0f;
+    const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+    const FVector End = Start + GetActorForwardVector() * AttackRange;
+
+    bool HitDetected = GetWorld()->SweepSingleByChannel(
+        OutHitResult,
+        Start,
+        End,
+        FQuat::Identity,
+        ECollisionChannel::ECC_GameTraceChannel1,
+        FCollisionShape::MakeSphere(AttackRadius),
+        Params
+    );
+
+    if (HitDetected)
+    {
+        // 무언가가 감지되었다는 뜻
+        FDamageEvent DamageEvent;
+        OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+    }
+
+#if ENABLE_DRAW_DEBUG
+    FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+    float CapsuleHalfHeight = AttackRange * 0.5f;
+    FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+    DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+#endif
+}
+
+float AABCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+    Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+    SetDead();
+
+    return DamageAmount;
+}
+
+void AABCharacterBase::SetDead()
+{
+    GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+    PlayDeadAnimation();
+    SetActorEnableCollision(false);
+}
+
+void AABCharacterBase::PlayDeadAnimation()
+{
+    UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+    animInstance->StopAllMontages(0.0f);
+
+    animInstance->Montage_Play(DeadMontage, 1.0f);
 }
 
