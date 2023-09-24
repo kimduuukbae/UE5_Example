@@ -11,18 +11,18 @@
 
 AABCharacterPlayer::AABCharacterPlayer()
 {
-	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
-	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
 	
-	springArm->SetupAttachment(RootComponent);
-	springArm->TargetArmLength = 400.0f;
-	springArm->bUsePawnControlRotation = true;
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->TargetArmLength = 400.0f;
+	SpringArm->bUsePawnControlRotation = true;
 
-	camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
-	camera->bUsePawnControlRotation = false;
+	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	Camera->bUsePawnControlRotation = false;
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> inputActionJumpRef = TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/IA_Player_Jump.IA_Player_Jump'");
-	if (inputActionJumpRef.Object) jumpAction = inputActionJumpRef.Object;
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef = TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/IA_Player_Jump.IA_Player_Jump'");
+	if (InputActionJumpRef.Object) JumpAction = InputActionJumpRef.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeActionRef = TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/IA_ChangeControl.IA_ChangeControl'");
 	if (ChangeActionRef.Object) ChangeControlAction = ChangeActionRef.Object;
@@ -48,8 +48,8 @@ void AABCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	UEnhancedInputComponent* enhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
-	enhancedInputComponent->BindAction(jumpAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Custom_Jump);
-	enhancedInputComponent->BindAction(jumpAction, ETriggerEvent::Completed, this, &AABCharacterPlayer::Custom_Jump);
+	enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Custom_Jump);
+	enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AABCharacterPlayer::Custom_Jump);
 	enhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderMove);
 	enhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	enhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::QuaterMove);
@@ -68,27 +68,27 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 {
 	Super::SetCharacterControlData(CharacterControlData);
 
-	springArm->TargetArmLength = CharacterControlData->TargetArmLength;
-	springArm->SetRelativeRotation(CharacterControlData->RelativeRotation);
-	springArm->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
-	springArm->bInheritPitch = CharacterControlData->bInheritPitch;
-	springArm->bInheritYaw = CharacterControlData->bInheritYaw;
-	springArm->bInheritRoll = CharacterControlData->bInheritRoll;
-	springArm->bDoCollisionTest = CharacterControlData->bDoCollisionTest;
+	SpringArm->TargetArmLength = CharacterControlData->TargetArmLength;
+	SpringArm->SetRelativeRotation(CharacterControlData->RelativeRotation);
+	SpringArm->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
+	SpringArm->bInheritPitch = CharacterControlData->bInheritPitch;
+	SpringArm->bInheritYaw = CharacterControlData->bInheritYaw;
+	SpringArm->bInheritRoll = CharacterControlData->bInheritRoll;
+	SpringArm->bDoCollisionTest = CharacterControlData->bDoCollisionTest;
 }
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
 	FVector2D v = Value.Get<FVector2D>();
 
-	const FRotator rot = Controller->GetControlRotation();
-	const FRotator YawRotation(0, rot.Yaw, 0);
+	const FRotator Rot = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rot.Yaw, 0);
 
-	const FVector forwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector rightDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector RightDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AddMovementInput(forwardDir, v.X);
-	AddMovementInput(rightDir, v.Y);
+	AddMovementInput(ForwardDir, v.X);
+	AddMovementInput(RightDir, v.Y);
 }
 
 // 컨트롤러는 현재 사용자의 회전양 같은걸 관리하는 거지, 폰이나 카메라에 적용시키지 않는다.
@@ -135,14 +135,14 @@ void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 
 	SetCharacterControlData(NewCharacterControl);
 
-	APlayerController* controller = CastChecked<APlayerController>(GetController());
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 
-	if (auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(controller->GetLocalPlayer()); subsystem) {
-		subsystem->ClearAllMappings();
+	if (auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()); Subsystem) {
+		Subsystem->ClearAllMappings();
 
 		UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
 
-		subsystem->AddMappingContext(NewMappingContext, 0);
+		Subsystem->AddMappingContext(NewMappingContext, 0);
 	}
 
 	CurrentCharacterControlType = NewCharacterControlType;

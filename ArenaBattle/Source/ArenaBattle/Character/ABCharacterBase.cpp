@@ -32,26 +32,26 @@ AABCharacterBase::AABCharacterBase()
     GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
     GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
-    static ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'");
-    if (characterMeshRef.Object) GetMesh()->SetSkeletalMesh(characterMeshRef.Object);
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef = TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'");
+    if (CharacterMeshRef.Object) GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
 
-    static ConstructorHelpers::FClassFinder<UAnimInstance> animInstanceRef = TEXT("/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C");
-    if (animInstanceRef.Class) GetMesh()->SetAnimInstanceClass(animInstanceRef.Class);
+    static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef = TEXT("/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C");
+    if (AnimInstanceRef.Class) GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
 
-    static ConstructorHelpers::FObjectFinder<UABCharacterControlData> shoulderDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Shoulder.ABC_Shoulder'");
-    if (shoulderDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Shoulder, shoulderDataRef.Object);
+    static ConstructorHelpers::FObjectFinder<UABCharacterControlData> ShoulderDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Shoulder.ABC_Shoulder'");
+    if (ShoulderDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Shoulder, ShoulderDataRef.Object);
 
-    static ConstructorHelpers::FObjectFinder<UABCharacterControlData> quaterDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Quater.ABC_Quater'");
-    if (quaterDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Quater, quaterDataRef.Object);
+    static ConstructorHelpers::FObjectFinder<UABCharacterControlData> QuaterDataRef = TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Quater.ABC_Quater'");
+    if (QuaterDataRef.Object) CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 
-    static ConstructorHelpers::FObjectFinder<UAnimMontage> comboActionMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_ComboAttack.AM_ComboAttack'");
-    if (comboActionMontageRef.Object) ComboActionMontage = comboActionMontageRef.Object;
+    static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_ComboAttack.AM_ComboAttack'");
+    if (ComboActionMontageRef.Object) ComboActionMontage = ComboActionMontageRef.Object;
 
-    static ConstructorHelpers::FObjectFinder<UABComboActionData> comboActionDataRef = TEXT("/Script/ArenaBattle.ABComboActionData'/Game/ArenaBattle/CharacterAction/ABA_ComboAttack.ABA_ComboAttack'");
-    if (comboActionDataRef.Object) ComboActionData = comboActionDataRef.Object;
+    static ConstructorHelpers::FObjectFinder<UABComboActionData> ComboActionDataRef = TEXT("/Script/ArenaBattle.ABComboActionData'/Game/ArenaBattle/CharacterAction/ABA_ComboAttack.ABA_ComboAttack'");
+    if (ComboActionDataRef.Object) ComboActionData = ComboActionDataRef.Object;
 
-    static ConstructorHelpers::FObjectFinder<UAnimMontage> deadMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_Dead.AM_Dead'");
-    if (deadMontageRef.Object) DeadMontage = deadMontageRef.Object;
+    static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_Dead.AM_Dead'");
+    if (DeadMontageRef.Object) DeadMontage = DeadMontageRef.Object;
 }
 
 void AABCharacterBase::SetCharacterControlData(const UABCharacterControlData* CharacterControlData)
@@ -200,9 +200,9 @@ void AABCharacterBase::SetDead()
 
 void AABCharacterBase::PlayDeadAnimation()
 {
-    UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-    animInstance->StopAllMontages(0.0f);
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+    AnimInstance->StopAllMontages(0.0f);
 
-    animInstance->Montage_Play(DeadMontage, 1.0f);
+    AnimInstance->Montage_Play(DeadMontage, 1.0f);
 }
 
