@@ -9,6 +9,8 @@
 #include "ABComboActionData.h"
 #include "Physics/ABCollision.h"
 #include "Engine/DamageEvents.h"
+#include "CharacterStat/ABCharacterStatComponent.h"
+#include "Components//WidgetComponent.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -52,6 +54,20 @@ AABCharacterBase::AABCharacterBase()
 
     static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef = TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_Dead.AM_Dead'");
     if (DeadMontageRef.Object) DeadMontage = DeadMontageRef.Object;
+
+    Stat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("Stat"));
+    HPBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+    HPBar->SetupAttachment(GetMesh());
+    HPBar->SetRelativeLocation(FVector{0.0f, 0.0f, 180.0f});
+
+    static ConstructorHelpers::FClassFinder<UUserWidget> HPBarWidgetRef = TEXT("/Game/ArenaBattle/UI/WBP_HPBar.WBP_HPBar_C");
+    if (HPBarWidgetRef.Class) 
+    {
+        HPBar->SetWidgetClass(HPBarWidgetRef.Class);
+        HPBar->SetWidgetSpace(EWidgetSpace::Screen);
+        HPBar->SetDrawSize(FVector2D{ 150.0f, 15.0f });
+        HPBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
 }
 
 void AABCharacterBase::SetCharacterControlData(const UABCharacterControlData* CharacterControlData)
