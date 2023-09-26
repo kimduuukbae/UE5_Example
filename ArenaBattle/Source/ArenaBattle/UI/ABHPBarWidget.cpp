@@ -2,7 +2,8 @@
 
 
 #include "UI/ABHPBarWidget.h"
-#include "Components//ProgressBar.h"
+#include "Components/ProgressBar.h"
+#include "Interface/ABCharacterWidgetInterface.h"
 
 UABHPBarWidget::UABHPBarWidget(const FObjectInitializer& ObjectInitializer) : Super::UUserWidget(ObjectInitializer)
 {
@@ -16,6 +17,13 @@ void UABHPBarWidget::NativeConstruct()
 	HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
 
 	ensure(HPProgressBar);
+
+	IABCharacterWidgetInterface* CharacterWidget = Cast<IABCharacterWidgetInterface>(GetOwner());
+
+	if (CharacterWidget)
+	{
+		CharacterWidget->SetupCharacterWidget(this);
+	}
 }
 
 void UABHPBarWidget::UpdateHPBar(float NewCurrentHP)

@@ -22,7 +22,7 @@ float UABCharacterStatComponent::ApplyDamage(float InDamage)
 
 	if (CurrentHP <= KINDA_SMALL_NUMBER)
 	{
-		//OnHPZero.Broadcast();
+		OnHPZero.Broadcast();
 	}
 
 	return ActualDamage;
@@ -32,7 +32,7 @@ void UABCharacterStatComponent::SetHP(float NewHP)
 {
 	CurrentHP = FMath::Clamp<float>(NewHP, 0.0f, MaxHP);
 
-	//OnHPChanged.Broadcast(CurrentHP);
+	OnHPChanged.Broadcast(CurrentHP);
 }
 
 

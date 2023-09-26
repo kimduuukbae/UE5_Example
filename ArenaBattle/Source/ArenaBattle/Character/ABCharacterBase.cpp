@@ -10,7 +10,8 @@
 #include "Physics/ABCollision.h"
 #include "Engine/DamageEvents.h"
 #include "CharacterStat/ABCharacterStatComponent.h"
-#include "Components//WidgetComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/ABHPBarWidget.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -68,6 +69,13 @@ AABCharacterBase::AABCharacterBase()
         HPBar->SetDrawSize(FVector2D{ 150.0f, 15.0f });
         HPBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+void AABCharacterBase::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    Stat->OnHPZero.AddUObject(this, &AABCharacterBase::SetDead);
 }
 
 void AABCharacterBase::SetCharacterControlData(const UABCharacterControlData* CharacterControlData)
@@ -202,7 +210,7 @@ float AABCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
     Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-    SetDead();
+    Stat->ApplyDamage(DamageAmount);
 
     return DamageAmount;
 }
@@ -220,5 +228,17 @@ void AABCharacterBase::PlayDeadAnimation()
     AnimInstance->StopAllMontages(0.0f);
 
     AnimInstance->Montage_Play(DeadMontage, 1.0f);
+}
+
+void AABCharacterBase::SetupCharacterWidget(UUserWidget* InUserWidget)
+{
+    UABHPBarWidget* HPBarWidget = Cast<UABHPBarWidget>(InUserWidget);
+
+    if (HPBarWidget != nullptr)
+    {
+        HPBarWidget->SetMaxHP(Stat->GetMaxHP());
+        HPBarWidget->UpdateHPBar(Stat->GetCurrentHP());
+        Stat->OnHPChanged.AddUObject(HPBarWidget, &UABHPBarWidget::UpdateHPBar);
+    }
 }
 
