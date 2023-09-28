@@ -9,6 +9,7 @@
 #include "CharacterStat/ABCharacterStatComponent.h"
 #include "Components/WidgetComponent.h"
 #include "UI/ABHPBarWidget.h"
+#include "Item/ABWeaponItemData.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -18,7 +19,7 @@ AABCharacterBase::AABCharacterBase()
     bUseControllerRotationYaw = false;
 
     GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
-    GetCapsuleComponent()->SetCollisionProfileName(CFROFILE_ABCAPSULE);
+    GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_ABCAPSULE);
 
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
@@ -66,6 +67,15 @@ AABCharacterBase::AABCharacterBase()
         HPBar->SetDrawSize(FVector2D{ 150.0f, 15.0f });
         HPBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+
+    // Item Actions
+    TakeItemActions.Add(FTakeItemDelegateWrapper{ FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::EquipWeapon) });
+    TakeItemActions.Add(FTakeItemDelegateWrapper{ FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::DrinkPotion) });
+    TakeItemActions.Add(FTakeItemDelegateWrapper{ FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::ReadScroll) });
+
+    Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+    Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+
 }
 
 void AABCharacterBase::PostInitializeComponents()
@@ -237,5 +247,35 @@ void AABCharacterBase::SetupCharacterWidget(UUserWidget* InUserWidget)
         HPBarWidget->UpdateHPBar(Stat->GetCurrentHP());
         Stat->OnHPChanged.AddUObject(HPBarWidget, &UABHPBarWidget::UpdateHPBar);
     }
+}
+
+void AABCharacterBase::TakeItem(UABItemData* InItemData)
+{
+    if (InItemData)
+    {
+        TakeItemActions[static_cast<uint8>(InItemData->Type)].ItemDelegate.ExecuteIfBound(InItemData);
+    }
+}
+
+void AABCharacterBase::DrinkPotion(UABItemData* InItemData)
+{
+}
+
+void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
+{
+    UABWeaponItemData* WeaponItemData = Cast<UABWeaponItemData>(InItemData);
+
+    if (WeaponItemData)
+    {
+        if (WeaponItemData->WeaponMesh.IsPending())
+        {
+            WeaponItemData->WeaponMesh.LoadSynchronous();
+        }
+        Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
+    }
+}
+
+void AABCharacterBase::ReadScroll(UABItemData* InItemData)
+{
 }
 
