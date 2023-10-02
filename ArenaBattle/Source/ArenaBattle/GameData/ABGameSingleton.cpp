@@ -21,6 +21,8 @@ UABGameSingleton::UABGameSingleton()
 			}
 		);
 	}
+
+	CharacterMaxLevel = CharacterStatTable.Num();
 }
 
 UABGameSingleton& UABGameSingleton::Get()

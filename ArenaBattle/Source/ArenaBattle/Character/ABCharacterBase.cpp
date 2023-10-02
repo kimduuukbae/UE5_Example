@@ -123,7 +123,7 @@ void AABCharacterBase::ComboActionBegin()
     GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
     // Animation Setting
-    const float attackSpeedRate = 1.0f;
+    const float attackSpeedRate = Stat->GetTotalStat().AttackSpeed;
 
     UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
     animInstance->Montage_Play(ComboActionMontage, attackSpeedRate);
@@ -149,7 +149,7 @@ void AABCharacterBase::SetComboCheckTimer()
     int32 ComboIndex = CurrentCombo - 1;
     ensure(ComboActionData->EffectiveFrameCount.IsValidIndex(ComboIndex));
 
-    const float attackSpeedRate = 1.0f;
+    const float attackSpeedRate = Stat->GetTotalStat().AttackSpeed;
     float ComboEffectiveTime = ComboActionData->EffectiveFrameCount[ComboIndex] / ComboActionData->FrameRate / attackSpeedRate;
 
     if (ComboEffectiveTime > 0.0f)
@@ -181,9 +181,9 @@ void AABCharacterBase::AttackHitCheck()
     FHitResult OutHitResult;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), true, this);
 
-    const float AttackRange = 40.0f;
+    const float AttackRange = Stat->GetTotalStat().AttackRange;
     const float AttackRadius = 50.0f;
-    const float AttackDamage = 100.0f;
+    const float AttackDamage = Stat->GetTotalStat().Attack;
     const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
     const FVector End = Start + GetActorForwardVector() * AttackRange;
 
@@ -243,7 +243,7 @@ void AABCharacterBase::SetupCharacterWidget(UUserWidget* InUserWidget)
 
     if (HPBarWidget != nullptr)
     {
-        HPBarWidget->SetMaxHP(Stat->GetMaxHP());
+        HPBarWidget->SetMaxHP(Stat->GetTotalStat().MaxHP);
         HPBarWidget->UpdateHPBar(Stat->GetCurrentHP());
         Stat->OnHPChanged.AddUObject(HPBarWidget, &UABHPBarWidget::UpdateHPBar);
     }
@@ -277,5 +277,15 @@ void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
 
 void AABCharacterBase::ReadScroll(UABItemData* InItemData)
 {
+}
+
+int32 AABCharacterBase::GetLevel()
+{
+    return Stat->GetCurrentLevel();
+}
+
+void AABCharacterBase::SetLevel(int32 InNewLevel)
+{
+    Stat->SetLevelStat(InNewLevel);
 }
 

@@ -38,5 +38,7 @@ public:
 		{
 			ResultPtr[i] = ThisPtr[i] + OtherPtr[i];
 		}
+
+		return *this;
 	}
 };
