@@ -106,9 +106,11 @@ void AABStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 
 	if (!bResult)
 	{
-		AABStageGimmick* NewGimmick = GetWorld()->SpawnActor<AABStageGimmick>(NewLocation, FRotator::ZeroRotator);
+		FTransform NewTransform{ NewLocation };
+		AABStageGimmick* NewGimmick = GetWorld()->SpawnActorDeferred<AABStageGimmick>(AABStageGimmick::StaticClass(), NewTransform);
 		
 		NewGimmick->SetStageNum(CurrentStageNum + 1);
+		NewGimmick->FinishSpawning(NewTransform);
 	}
 }
 
@@ -190,13 +192,13 @@ void AABStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
 
 void AABStageGimmick::OnOpponentSpawn()
 {
-	const FVector SpawnLocation = GetActorLocation() + FVector::UpVector * 88.0f;
-	AActor* OpponentActor = GetWorld()->SpawnActor(OpponentClass, &SpawnLocation, &FRotator::ZeroRotator);
-	AABCharacterNonePlayer* ABOpponentCharacter = Cast<AABCharacterNonePlayer>(OpponentActor);
-	if (ABOpponentCharacter)
+	const FTransform SpawnTransform{ GetActorLocation() + FVector::UpVector * 88.0f };
+	AABCharacterNonePlayer* OpponentActor = GetWorld()->SpawnActorDeferred<AABCharacterNonePlayer>(OpponentClass, SpawnTransform);
+	if (OpponentActor)
 	{
-		ABOpponentCharacter->OnDestroyed.AddDynamic(this, &AABStageGimmick::OnOpponentDestroyed);
-		ABOpponentCharacter->SetLevel(CurrentStageNum);
+		OpponentActor->OnDestroyed.AddDynamic(this, &AABStageGimmick::OnOpponentDestroyed);
+		OpponentActor->SetLevel(CurrentStageNum);
+		OpponentActor->FinishSpawning(SpawnTransform);
 	}
 }
 
@@ -223,14 +225,17 @@ void AABStageGimmick::SpawnRewardBoxes()
 	for (const auto& RewardBoxLocation : RewardBoxLocations)
 	{
 		FVector WorldSpawnLocation = GetActorLocation() + RewardBoxLocation.Value + FVector{0.0f, 0.0f, 30.0f};
-		AActor* ItemActor = GetWorld()->SpawnActor(RewardBoxClass, &WorldSpawnLocation, &FRotator::ZeroRotator);
-		AABItemBox* RewardBoxActor = Cast<AABItemBox>(ItemActor);
+		FTransform NewTransform{ WorldSpawnLocation };
+		
+		AABItemBox* ItemActor = GetWorld()->SpawnActorDeferred<AABItemBox>(RewardBoxClass, NewTransform);
 
-		if (RewardBoxActor)
+		if (ItemActor)
 		{
-			RewardBoxActor->Tags.Add(RewardBoxLocation.Key);
-			RewardBoxActor->GetTrigger()->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmick::OnRewardTriggerBeginOverlap);
-			RewardBoxes.Add(RewardBoxActor);
+			ItemActor->Tags.Add(RewardBoxLocation.Key);
+			ItemActor->GetTrigger()->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmick::OnRewardTriggerBeginOverlap);
+			RewardBoxes.Add(ItemActor);
+
+			ItemActor->FinishSpawning(NewTransform);
 		}
 	}
 }

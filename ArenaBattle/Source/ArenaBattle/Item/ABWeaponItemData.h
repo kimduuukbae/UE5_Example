@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Item/ABItemData.h"
+#include "GameData/ABCharacterStat.h"
 #include "ABWeaponItemData.generated.h"
 
 UCLASS()
@@ -18,4 +19,7 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	TSoftObjectPtr<USkeletalMesh> WeaponMesh;
+
+	UPROPERTY(EditAnywhere, Category = Stat)
+	FABCharacterStat ModiferStat;
 };

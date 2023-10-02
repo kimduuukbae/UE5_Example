@@ -6,7 +6,7 @@ DEFINE_LOG_CATEGORY(LogABGameSingleton)
 
 UABGameSingleton::UABGameSingleton()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableRef(TEXT(""));
+	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableRef(TEXT("/Script/Engine.DataTable'/Game/ArenaBattle/GameData/ABCharacterStatTable.ABCharacterStatTable'"));
 
 	if (DataTableRef.Object)
 	{
