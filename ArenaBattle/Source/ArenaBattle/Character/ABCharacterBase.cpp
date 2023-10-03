@@ -125,13 +125,13 @@ void AABCharacterBase::ComboActionBegin()
     // Animation Setting
     const float attackSpeedRate = Stat->GetTotalStat().AttackSpeed;
 
-    UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-    animInstance->Montage_Play(ComboActionMontage, attackSpeedRate);
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+    AnimInstance->Montage_Play(ComboActionMontage, attackSpeedRate);
 
-    FOnMontageEnded endDelegate;
-    endDelegate.BindUObject(this, &AABCharacterBase::ComboActionEnd);
+    FOnMontageEnded EndDelegate;
+    EndDelegate.BindUObject(this, &AABCharacterBase::ComboActionEnd);
 
-    animInstance->Montage_SetEndDelegate(endDelegate, ComboActionMontage);
+    AnimInstance->Montage_SetEndDelegate(EndDelegate, ComboActionMontage);
 
     ComboTimerHandle.Invalidate();
     SetComboCheckTimer();
@@ -164,12 +164,12 @@ void AABCharacterBase::ComboCheck()
 
     if (HasNextComboCommand) 
     {
-        UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
         CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, ComboActionData->MaxComboCount);
         FName NextSection = *FString::Printf(TEXT("%s%d"), *ComboActionData->MontageSectionNamePrefix, CurrentCombo);
 
-        animInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
+        AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
 
         SetComboCheckTimer();
         HasNextComboCommand = false;
