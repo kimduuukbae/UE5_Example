@@ -194,6 +194,7 @@ void AABStageGimmick::OnOpponentSpawn()
 {
 	const FTransform SpawnTransform{ GetActorLocation() + FVector::UpVector * 88.0f };
 	AABCharacterNonePlayer* OpponentActor = GetWorld()->SpawnActorDeferred<AABCharacterNonePlayer>(OpponentClass, SpawnTransform);
+
 	if (OpponentActor)
 	{
 		OpponentActor->OnDestroyed.AddDynamic(this, &AABStageGimmick::OnOpponentDestroyed);
