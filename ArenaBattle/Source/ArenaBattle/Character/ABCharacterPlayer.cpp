@@ -88,9 +88,6 @@ void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 	AddMovementInput(RightDir, v.Y);
 }
 
-// 컨트롤러는 현재 사용자의 회전양 같은걸 관리하는 거지, 폰이나 카메라에 적용시키지 않는다.
-// 그런데 적용되는 이유는, 카메라나 springarm 에 bUseControllerRotation 이 체크되어 있기 때문
-// 즉, 폰도 bUseControllerRotation  같은것을 체크하는게 아니라면 MovementComponent로 회전, 움직임을 처리해야 한다.
 void AABCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 {
 	FVector2D v = Value.Get<FVector2D>();
@@ -105,7 +102,6 @@ void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 
 	float MovementVectorSize = 1.0f;
 	float MovementVectorSizeSquared = MovementVector.SquaredLength();
-	// x * x + y * y = z * z 에서 x * x + y * y > 1.0f 면 단위벡터가 무조건 아니고, 1.0 < 이면 단위벡터 일수도 아닐수도
 	
 	if (MovementVectorSizeSquared > 1.0f) {
 		MovementVectorSizeSquared = 1.0f;
