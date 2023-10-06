@@ -25,4 +25,7 @@ protected:
 	TArray<FSoftObjectPath> NPCMeshes;
 
 	TSharedPtr<FStreamableHandle> NPCMeshHandle;
+
+	// AI Stage
+protected:
 };
