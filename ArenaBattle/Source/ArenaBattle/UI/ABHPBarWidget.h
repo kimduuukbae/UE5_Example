@@ -25,4 +25,6 @@ protected:
 
 	UPROPERTY()
 	float MaxHP;
+
+// Slate
 };
